@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>PvP Tiers — Hollow</title>
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
+<meta name="description" content="Hollow — live Minecraft mods, modpacks, data packs, plugins, textures, shaders, server status, PvP tiers and news.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="bg-net"></div>
+<header>
+  <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileDrawer()" aria-label="Open menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="home.html" style="display:flex;text-decoration:none"><div class="brand-mark">H</div><div class="brand-name">Hollow <span>/ hub</span></div></a>
+  <nav class="primary" id="main-nav">
+    <a href="home.html">Home</a>
+    <a href="datapacks.html">Data Packs</a>
+    <a href="modpacks.html">Modpacks</a>
+    <a href="mods.html">Mods</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="servers.html">Servers</a>
+    <a href="shaders.html">Shaders</a>
+    <a href="textures.html">Textures</a>
+    <a href="tiers.html">PvP Tiers</a>
+    <a href="news.html">News</a>
+  </nav>
+  <div class="header-right">
+    
+    <div class="notif-wrap">
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel(event)" aria-label="Notifications"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
+      <div class="notif-panel" id="notif-panel">
+        <div class="notif-head"><b>Notifications</b><div class="notif-actions"><button onclick="markAllReadNotifs()">Mark all read</button><button onclick="clearAllNotifs()">Clear</button></div></div>
+        <div class="notif-list" id="notif-list"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+<div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+  <div class="mobile-drawer-head"><span>Browse</span><button onclick="closeMobileDrawer()" aria-label="Close menu">✕</button></div>
+  <nav class="mobile-drawer-nav" id="mobile-drawer-nav"></nav>
+</div>
+
+<section class="section" style="padding-top:36px;max-width:760px;margin-left:auto;margin-right:auto">
+  <div style="text-align:center;margin-bottom:28px">
+    <div class="eyebrow" style="margin-bottom:14px">🏆 live PvP rankings</div>
+    <h1 class="headline" style="font-size:34px;margin-bottom:10px">Look up any player's<br><span class="grad">PvP tier</span></h1>
+    <p class="sub" style="max-width:480px;margin:0 auto">Sword, Axe, Pot, UHC, NethOP, SMP, Mace and more — pulled live, every time.</p>
+  </div>
+
+  <div class="kit-cat-row" id="kit-cat-row"></div>
+
+  <div class="lookup-box glass">
+    <div class="lookup-row"><input type="text" id="mct-username" placeholder="Minecraft username…" autocomplete="off"><button id="mct-lookup-btn">Look up</button></div>
+    <div id="mct-result" style="display:none"></div>
+    <div id="mct-hint" class="tiers-hint">Search any Java username to see their tested kits and tiers.</div>
+  </div>
+
+  <div class="tiers-info-grid">
+    <div class="tiers-info-card glass">
+      <div class="tic-icon">⚔️</div>
+      <div class="tic-title">10 ranked kits</div>
+      <div class="tic-desc">Overall, LTMs, Vanilla, UHC, Pot, NethOP, SMP, Sword, Axe and Mace are all tracked per player.</div>
+    </div>
+    <div class="tiers-info-card glass">
+      <div class="tic-icon">🏅</div>
+      <div class="tic-title">High &amp; Low tiers</div>
+      <div class="tic-desc">Each tier splits into High and Low, so results reflect exactly where a player ranks within it.</div>
+    </div>
+    <div class="tiers-info-card glass">
+      <div class="tic-icon">🔄</div>
+      <div class="tic-title">Always current</div>
+      <div class="tic-desc">Rankings are fetched live on every search, so results reflect the latest tier tests.</div>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:8px"><div class="section-title" style="font-size:16px">Other ranking sites</div></div>
+  <div class="source-grid">
+    <a class="source-card glass" href="https://mctiers.com/rankings/overall" target="_blank" rel="noopener">
+      <div class="src-icon">⚔️</div>
+      <div class="src-body"><div class="src-title">Overall Leaderboard</div><div class="src-desc">Full community-tested rankings</div></div>
+      <div class="src-go">Open ↗</div>
+    </a>
+    <a class="source-card glass" href="https://pvptiers.com/" target="_blank" rel="noopener">
+      <div class="src-icon">🛡️</div>
+      <div class="src-body"><div class="src-title">Community Rankings</div><div class="src-desc">A second set of tier lists</div></div>
+      <div class="src-go">Open ↗</div>
+    </a>
+  </div>
+</section>
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div class="brand-mark" style="width:26px;height:26px;font-size:13px">H</div><div class="brand-name" style="font-size:15px">Hollow <span>/ hub</span></div></div>
+      <p>Live Minecraft mods, servers, and PvP rankings — all in one place, always up to date.</p>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-title">Browse</div>
+      <a href="datapacks.html">Data Packs</a>
+      <a href="modpacks.html">Modpacks</a>
+      <a href="mods.html">Mods</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="servers.html">Servers</a>
+      <a href="shaders.html">Shaders</a>
+      <a href="textures.html">Textures</a>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-title">More</div>
+      <a href="home.html">Home</a>
+      <a href="tiers.html">PvP Tiers</a>
+      <a href="news.html">News</a>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-title">Data sources</div>
+      <a href="https://modrinth.com" target="_blank" rel="noopener">Modrinth ↗</a>
+      <a href="https://mcsrvstat.us" target="_blank" rel="noopener">mcsrvstat.us ↗</a>
+      <a href="https://mctiers.com" target="_blank" rel="noopener">mctiers.com ↗</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-text">Hollow is an independent fan project and isn't affiliated with Mojang or Microsoft. &copy; <span id="foot-year"></span> Hollow.</div>
+  </div>
+</footer>
+<div id="toast-wrap"></div>
+
+<script src="assets/core.js"></script>
+<script src="assets/tiers.js"></script>
+</body>
+</html>

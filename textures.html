@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Textures — Hollow</title>
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
+<meta name="description" content="Hollow — live Minecraft mods, modpacks, data packs, plugins, textures, shaders, server status, PvP tiers and news.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="bg-net"></div>
+<header>
+  <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileDrawer()" aria-label="Open menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="home.html" style="display:flex;text-decoration:none"><div class="brand-mark">H</div><div class="brand-name">Hollow <span>/ hub</span></div></a>
+  <nav class="primary" id="main-nav">
+    <a href="home.html">Home</a>
+    <a href="datapacks.html">Data Packs</a>
+    <a href="modpacks.html">Modpacks</a>
+    <a href="mods.html">Mods</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="servers.html">Servers</a>
+    <a href="shaders.html">Shaders</a>
+    <a href="textures.html">Textures</a>
+    <a href="tiers.html">PvP Tiers</a>
+    <a href="news.html">News</a>
+  </nav>
+  <div class="header-right">
+    
+    <div class="notif-wrap">
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel(event)" aria-label="Notifications"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
+      <div class="notif-panel" id="notif-panel">
+        <div class="notif-head"><b>Notifications</b><div class="notif-actions"><button onclick="markAllReadNotifs()">Mark all read</button><button onclick="clearAllNotifs()">Clear</button></div></div>
+        <div class="notif-list" id="notif-list"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+<div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+  <div class="mobile-drawer-head"><span>Browse</span><button onclick="closeMobileDrawer()" aria-label="Close menu">✕</button></div>
+  <nav class="mobile-drawer-nav" id="mobile-drawer-nav"></nav>
+</div>
+
+<section class="section" style="padding-top:30px">
+  <div class="section-head">
+    <div>
+      <div class="section-title">Textures <span class="live-badge"><span class="dot-pulse" style="width:4px;height:4px"></span></span></div>
+      <div class="section-desc"><span id="textures-count">—</span> results &middot; <span class="sync-badge" id="textures-sync">syncing…</span></div>
+    </div>
+    <div class="toolbar">
+      <input class="inline-search glass" id="textures-search" placeholder="Search textures…" autocomplete="off">
+      <select class="sortsel" id="textures-sort">
+        <option value="downloads">Downloads</option>
+        <option value="relevance">Relevance</option>
+        <option value="follows">Follows</option>
+        <option value="newest">Newest</option>
+        <option value="updated">Updated</option>
+      </select>
+      <div class="pagesize-ctl" id="textures-pagesize"></div>
+    </div>
+  </div>
+  
+  <a class="packsmc-banner glass" href="https://packsmc.com/showcase" target="_blank" rel="noopener">
+    <div class="pmc-icon"><img src="assets/icons/packsmc-mark.png" alt="PacksMC" width="22" height="22"></div>
+    <div class="pmc-copy">
+      <div class="pmc-title">Looking for more resource packs?</div>
+      <div class="pmc-text">Explore an extended showcase of community texture packs curated by PacksMC.</div>
+    </div>
+    <div class="pmc-go">Visit PacksMC <span>↗</span></div>
+  </a>
+
+  <div class="filter-row" id="textures-filters"><span class="label">Category</span></div>
+  <div class="filter-row" id="textures-res-filters"><span class="label">Resolution</span></div>
+  <div class="grid" id="textures-grid"></div>
+  <div class="pagination-wrap" id="textures-pagination"></div>
+</section>
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div class="brand-mark" style="width:26px;height:26px;font-size:13px">H</div><div class="brand-name" style="font-size:15px">Hollow <span>/ hub</span></div></div>
+      <p>Live Minecraft mods, servers, and PvP rankings — all in one place, always up to date.</p>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-title">Browse</div>
+      <a href="datapacks.html">Data Packs</a>
+      <a href="modpacks.html">Modpacks</a>
+      <a href="mods.html">Mods</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="servers.html">Servers</a>
+      <a href="shaders.html">Shaders</a>
+      <a href="textures.html">Textures</a>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-title">More</div>
+      <a href="home.html">Home</a>
+      <a href="tiers.html">PvP Tiers</a>
+      <a href="news.html">News</a>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-title">Data sources</div>
+      <a href="https://modrinth.com" target="_blank" rel="noopener">Modrinth ↗</a>
+      <a href="https://mcsrvstat.us" target="_blank" rel="noopener">mcsrvstat.us ↗</a>
+      <a href="https://mctiers.com" target="_blank" rel="noopener">mctiers.com ↗</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-text">Hollow is an independent fan project and isn't affiliated with Mojang or Microsoft. &copy; <span id="foot-year"></span> Hollow.</div>
+  </div>
+</footer>
+<div id="toast-wrap"></div>
+<div class="modal-overlay" id="modal-overlay"><div class="modal glass"><button class="modal-close" onclick="closeModal()">✕</button><div class="modal-body-pad" id="modal-body"></div></div></div>
+
+
+<script src="assets/core.js"></script>
+<script src="assets/project.js"></script>
+<script src="assets/listing.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+if(params.get('q')) document.getElementById('textures-search').value = params.get('q');
+initListing({type:'textures', pt:'resourcepack', hasResolution:true, label:'texture packs'});
+</script>
+</body>
+</html>
