@@ -71,6 +71,15 @@ function getTag(block, tag) {
   return m ? m[1] : '';
 }
 
+function getInnerText(block, tag) {
+  const inner = getTag(block, tag);
+  if (!inner) return '';
+  // Atom <author> wraps the actual name in a nested <name> tag — pull that
+  // out instead of returning the whole "<name>x</name><uri>y</uri>" blob.
+  const nameMatch = inner.match(/<name[^>]*>([\s\S]*?)<\/name>/i);
+  return nameMatch ? nameMatch[1] : inner;
+}
+
 /* Minimal, dependency-free RSS/Atom parser — Cloudflare's Worker runtime
    has no DOMParser, so this pulls out just the fields we need with regex
    rather than pulling in a full XML parsing library for it. */
@@ -85,7 +94,7 @@ function parseFeed(xml) {
       const linkAttr = block.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>/i);
       link = linkAttr ? linkAttr[1] : '';
     }
-    const author = stripCdata(getTag(block, 'author')).replace(/^\/u\//, '');
+    const author = stripCdata(getInnerText(block, 'author')).replace(/^\/u\//, '');
     items.push({
       title: stripCdata(getTag(block, 'title')),
       link,
