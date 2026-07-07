@@ -142,7 +142,7 @@ export async function onRequestGet({ request }) {
   return new Response(JSON.stringify({ items, failures, totalFeeds: feeds.length }), {
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=60',
+      'Cache-Control': 'public, max-age=20',
       'Access-Control-Allow-Origin': '*',
     },
   });
