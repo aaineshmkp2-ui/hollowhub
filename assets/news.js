@@ -169,8 +169,15 @@ function renderNewsPage(){
 
 function newsCardHTML(it, idx){
   const img = extractNewsImage(it);
-  const desc = (it.description||'').replace(/<[^>]+>/g,'').slice(0,140);
-  return `<a class="card glass" href="javascript:void(0)" onclick="openNewsModal(${idx})"><div class="card-slider">${img?`<img src="${esc(safeUrl(img))}" loading="lazy" style="width:100%;height:100%;object-fit:cover" alt="">`:`<div class="card-slide-empty">📰</div>`}</div><div class="card-body"><div class="card-name">${esc(it.title)}</div><div class="card-author">${esc(it.sourceName)} · ${esc(it.author||'')}</div><div class="card-desc">${esc(desc)}</div><div class="card-tags"><span class="tag">${esc(it.sourceTag)}</span></div><div class="card-foot"><div class="card-stat">${new Date(it.pubDate).toLocaleDateString()}</div><span class="dl-btn">Preview</span></div></div></a>`;
+  const isVideo = isVideoPost(it);
+  // Description text has the same entity-escaping as the image markup — decode
+  // before stripping tags, or the raw "&lt;img..." markup shows up as visible
+  // text in the preview instead of being removed.
+  const desc = decodeHtmlEntities(it.description||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,140);
+  const slideContent = img
+    ? `<img src="${esc(safeUrl(img))}" loading="lazy" style="width:100%;height:100%;object-fit:cover" alt="">${isVideo?`<div class="video-badge">▶</div>`:''}`
+    : `<div class="card-slide-empty"><span class="cse-icon">${isVideo?'🎬':'💬'}</span><span class="cse-label">${esc(it.sourceTag)}</span></div>`;
+  return `<a class="card glass" href="javascript:void(0)" onclick="openNewsModal(${idx})"><div class="card-slider">${slideContent}</div><div class="card-body"><div class="card-name">${esc(it.title)}</div><div class="card-author">${esc(it.sourceName)} · ${esc(it.author||'')}</div><div class="card-desc">${esc(desc)}</div><div class="card-tags"><span class="tag">${esc(it.sourceTag)}</span></div><div class="card-foot"><div class="card-stat">${new Date(it.pubDate).toLocaleDateString()}</div><span class="dl-btn">Preview</span></div></div></a>`;
 }
 function openNewsModal(idx){
   const it = newsPageItems[idx];
@@ -179,7 +186,7 @@ function openNewsModal(idx){
   const overlay = document.getElementById('modal-overlay');
   if(!body || !overlay) return;
   const img = extractNewsImage(it);
-  const fullDesc = (it.description||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,600) || 'No preview text available for this post.';
+  const fullDesc = decodeHtmlEntities(it.description||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,600) || 'No preview text available for this post.';
   body.innerHTML = `
     ${img?`<div class="modal-gallery" style="border-radius:14px;margin-bottom:16px"><img src="${esc(safeUrl(img))}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`:''}
     <div class="card-tags" style="margin-bottom:10px"><span class="tag">${esc(it.sourceTag)}</span></div>
@@ -194,9 +201,19 @@ function extractNewsImage(it){
   if(it.thumbnail) return decodeHtmlEntities(it.thumbnail);
   if(it.enclosure && it.enclosure.link) return decodeHtmlEntities(it.enclosure.link);
   if(it.enclosure && it.enclosure.thumbnail) return decodeHtmlEntities(it.enclosure.thumbnail);
-  const src = it.content || it.description || '';
-  const m = src.match(/<img[^>]+src=["']([^"']+)["']/i);
+  const raw = it.content || it.description || '';
+  // Reddit's feed wraps embedded markup as escaped entities, e.g.
+  // "&lt;img src=&quot;https://...&quot;&gt;" — searching for a literal
+  // "<img" against that raw text never matches anything, which is why
+  // images (and video-post thumbnails, which use this same path) never
+  // showed up. Decode first, then look for the tag.
+  const decoded = decodeHtmlEntities(raw);
+  const m = decoded.match(/<img[^>]+src=["']([^"']+)["']/i);
   return m ? decodeHtmlEntities(m[1]) : null;
+}
+function isVideoPost(it){
+  const text = ((it.link||'') + ' ' + (it.description||'')).toLowerCase();
+  return text.includes('v.redd.it') || text.includes('/video/') || text.includes('gfycat') || text.includes('redgifs') || text.includes('youtube.com') || text.includes('youtu.be');
 }
 /* Image URLs pulled out of raw feed HTML (via regex above) still contain the
    feed's own HTML-entity encoding, e.g. "&amp;" for a literal "&" in a query
