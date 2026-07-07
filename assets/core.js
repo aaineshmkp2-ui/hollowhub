@@ -87,7 +87,15 @@ function fallbackCopy(text,done){
    ============================================================ */
 async function forceDownload(url, filename, btn){
   const originalHTML = btn ? btn.innerHTML : null;
-  if(btn){btn.classList.add('busy');btn.innerHTML='⬇ Starting…'}
+  if(btn){btn.classList.add('busy','pulsing');btn.innerHTML='⬇ Connecting…'}
+  // If the CDN takes a moment to respond (redirects, cold cache, etc.) before
+  // any bytes arrive, the button would otherwise sit on static unchanging
+  // text and look frozen — especially noticeable on small files, where this
+  // connection time is a bigger share of the total wait than the download
+  // itself. Nudge the wording after a few seconds so it reads as "still
+  // working" rather than "stuck".
+  let firstByteReceived = false;
+  const stalledHint = setTimeout(()=>{ if(btn && !firstByteReceived) btn.innerHTML = '⬇ Still connecting…'; }, 3500);
   try{
     const res = await fetchWithTimeout(url, {mode:'cors'}, 30000);
     if(!res.ok) throw new Error('HTTP '+res.status);
@@ -104,6 +112,7 @@ async function forceDownload(url, filename, btn){
       while(true){
         const {done, value} = await reader.read();
         if(done) break;
+        if(!firstByteReceived){ firstByteReceived = true; clearTimeout(stalledHint); if(btn) btn.classList.remove('pulsing'); }
         chunks.push(value);
         loaded += value.length;
         if(btn){
@@ -126,7 +135,8 @@ async function forceDownload(url, filename, btn){
     toast('Direct download blocked — opening file link','red');
     window.open(url, '_blank', 'noopener');
   }finally{
-    if(btn){btn.classList.remove('busy');if(originalHTML)btn.innerHTML=originalHTML}
+    clearTimeout(stalledHint);
+    if(btn){btn.classList.remove('busy','pulsing');if(originalHTML)btn.innerHTML=originalHTML}
   }
 }
 
