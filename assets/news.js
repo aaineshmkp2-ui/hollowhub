@@ -82,7 +82,7 @@ async function loadNewsFeed(){
   // failed" happen more than it should have.
   let usedEdgeFunction = false;
   try{
-    const r = await fetchWithTimeout(`/api/news?cat=${encodeURIComponent(requestedCat)}`, null, 10000);
+    const r = await fetchWithTimeout(`/api/news?cat=${encodeURIComponent(requestedCat)}&_=${Date.now()}`, null, 10000);
     if(r.ok){
       const d = await r.json();
       if(d && Array.isArray(d.items) && d.items.length){
