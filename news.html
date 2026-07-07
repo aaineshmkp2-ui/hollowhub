@@ -1,103 +1,149 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>News — Hollow</title>
-<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="favicon.ico" sizes="48x48">
-<link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-<meta name="description" content="Hollow — live Minecraft mods, modpacks, data packs, plugins, textures, shaders, server status, PvP tiers and news.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
-<div class="bg-net"></div>
-<header>
-  <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileDrawer()" aria-label="Open menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-  <a class="brand" href="home.html" style="display:flex;text-decoration:none"><div class="brand-mark">H</div><div class="brand-name">Hollow <span>/ hub</span></div></a>
-  <nav class="primary" id="main-nav">
-    <a href="home.html">Home</a>
-    <a href="datapacks.html">Data Packs</a>
-    <a href="modpacks.html">Modpacks</a>
-    <a href="mods.html">Mods</a>
-    <a href="plugins.html">Plugins</a>
-    <a href="servers.html">Servers</a>
-    <a href="shaders.html">Shaders</a>
-    <a href="textures.html">Textures</a>
-    <a href="tiers.html">PvP Tiers</a>
-    <a href="news.html">News</a>
-  </nav>
-  <div class="header-right">
-    
-    <div class="notif-wrap">
-      <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel(event)" aria-label="Notifications"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
-      <div class="notif-panel" id="notif-panel">
-        <div class="notif-head"><b>Notifications</b><div class="notif-actions"><button onclick="markAllReadNotifs()">Mark all read</button><button onclick="clearAllNotifs()">Clear</button></div></div>
-        <div class="notif-list" id="notif-list"></div>
-      </div>
-    </div>
-  </div>
-</header>
+/* ============================================================
+   Cloudflare Pages Function — /api/news
+   Runs server-side on Cloudflare's edge, not in the visitor's
+   browser. Fetches Reddit's RSS feeds directly (with a proper
+   descriptive User-Agent, which Reddit's own docs ask for) and
+   returns clean JSON to the client.
 
-<div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
-<div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
-  <div class="mobile-drawer-head"><span>Browse</span><button onclick="closeMobileDrawer()" aria-label="Close menu">✕</button></div>
-  <nav class="mobile-drawer-nav" id="mobile-drawer-nav"></nav>
-</div>
+   Why this exists: the old approach had the browser hop through
+   public CORS proxies (allorigins, rss2json, codetabs) to reach
+   Reddit. Those proxy IPs are extremely widely used/abused, and
+   Reddit's anti-bot systems increasingly throttle or block them
+   outright — which is why ALL THREE could fail at once even
+   though each one is a genuinely different company/service. A
+   same-origin edge function making its own direct request doesn't
+   have that shared-reputation problem.
 
-<section class="section" style="padding-top:30px">
-  <div class="section-head"><div><div class="section-title">News <span class="live-badge"><span class="dot-pulse" style="width:4px;height:4px"></span> LIVE</span></div><div class="section-desc">Java, Bedrock, mods &amp; servers — pulled from live community feeds · <span class="sync-badge" id="news-sync">syncing…</span></div></div></div>
-  <div class="filter-row" id="news-cat-filters">
-    <span class="label">Category</span>
-    <button class="chip active" onclick="setNewsCat('all', this)">All</button>
-    <button class="chip" onclick="setNewsCat('java', this)">Java</button>
-    <button class="chip" onclick="setNewsCat('bedrock', this)">Bedrock</button>
-    <button class="chip" onclick="setNewsCat('mods', this)">Mods</button>
-    <button class="chip" onclick="setNewsCat('servers', this)">Servers</button>
-  </div>
-  <div class="grid" id="news-grid"></div>
-  <div class="pagination-wrap" id="news-pagination"></div>
-</section>
-<footer>
-  <div class="foot-grid">
-    <div class="foot-brand">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div class="brand-mark" style="width:26px;height:26px;font-size:13px">H</div><div class="brand-name" style="font-size:15px">Hollow <span>/ hub</span></div></div>
-      <p>Live Minecraft mods, servers, and PvP rankings — all in one place, always up to date.</p>
-    </div>
-    <div class="foot-col">
-      <div class="foot-col-title">Browse</div>
-      <a href="datapacks.html">Data Packs</a>
-      <a href="modpacks.html">Modpacks</a>
-      <a href="mods.html">Mods</a>
-      <a href="plugins.html">Plugins</a>
-      <a href="servers.html">Servers</a>
-      <a href="shaders.html">Shaders</a>
-      <a href="textures.html">Textures</a>
-    </div>
-    <div class="foot-col">
-      <div class="foot-col-title">More</div>
-      <a href="home.html">Home</a>
-      <a href="tiers.html">PvP Tiers</a>
-      <a href="news.html">News</a>
-    </div>
-    <div class="foot-col">
-      <div class="foot-col-title">Data sources</div>
-      <a href="https://modrinth.com" target="_blank" rel="noopener">Modrinth ↗</a>
-      <a href="https://mcsrvstat.us" target="_blank" rel="noopener">mcsrvstat.us ↗</a>
-      <a href="https://mctiers.com" target="_blank" rel="noopener">mctiers.com ↗</a>
-    </div>
-  </div>
-  <div class="foot-bottom">
-    <div class="foot-text">Hollow is an independent fan project and isn't affiliated with Mojang or Microsoft. &copy; <span id="foot-year"></span> Hollow.</div>
-  </div>
-</footer>
-<div id="toast-wrap"></div>
-<div class="modal-overlay" id="modal-overlay"><div class="modal glass"><button class="modal-close" onclick="closeModal()">✕</button><div class="modal-body-pad" id="modal-body"></div></div></div>
+   This also means Reddit only ever sees traffic from Cloudflare's
+   edge (cacheable, rate-limit-friendly) instead of every single
+   visitor's browser hitting Reddit individually.
+   ============================================================ */
 
-<script src="assets/core.js"></script>
-<script src="assets/news.js"></script>
-</body>
-</html>
+const FEEDS = {
+  all: [
+    { name: 'Minecraft', url: 'https://www.reddit.com/r/Minecraft/new/.rss?limit=45', tag: 'Java' },
+    { name: 'Minecraft Bedrock', url: 'https://www.reddit.com/r/MCPE/new/.rss?limit=35', tag: 'Bedrock' },
+    { name: 'Server Admins', url: 'https://www.reddit.com/r/admincraft/new/.rss?limit=25', tag: 'Servers' },
+    { name: 'Aternos Community', url: 'https://www.reddit.com/r/aternos/new/.rss?limit=15', tag: 'Servers' },
+    { name: 'Modded Minecraft', url: 'https://www.reddit.com/r/feedthebeast/new/.rss?limit=25', tag: 'Mods' },
+    { name: 'Fabric Modding', url: 'https://www.reddit.com/r/fabricmc/new/.rss?limit=15', tag: 'Mods' },
+    { name: 'Technical MC', url: 'https://www.reddit.com/r/technicalminecraft/new/.rss?limit=15', tag: 'Java' },
+    { name: 'Minecraft Builds', url: 'https://www.reddit.com/r/minecraftbuilds/new/.rss?limit=15', tag: 'Java' },
+    { name: 'Minecraft Commands', url: 'https://www.reddit.com/r/MinecraftCommands/new/.rss?limit=12', tag: 'Java' },
+    { name: 'Create Mod', url: 'https://www.reddit.com/r/CreateMod/new/.rss?limit=15', tag: 'Mods' },
+    { name: 'Minecraft Suggestions', url: 'https://www.reddit.com/r/minecraftsuggestions/new/.rss?limit=10', tag: 'Java' },
+    { name: 'All The Mods', url: 'https://www.reddit.com/r/allthemods/new/.rss?limit=10', tag: 'Mods' },
+    { name: 'Minecraft Help', url: 'https://www.reddit.com/r/MinecraftHelp/new/.rss?limit=12', tag: 'Java' },
+    { name: 'Minecraft Memes', url: 'https://www.reddit.com/r/MinecraftMemes/new/.rss?limit=10', tag: 'Java' },
+  ],
+  java: [
+    { name: 'Minecraft', url: 'https://www.reddit.com/r/Minecraft/new/.rss?limit=45', tag: 'Java' },
+    { name: 'Technical MC', url: 'https://www.reddit.com/r/technicalminecraft/new/.rss?limit=20', tag: 'Java' },
+    { name: 'Minecraft Builds', url: 'https://www.reddit.com/r/minecraftbuilds/new/.rss?limit=20', tag: 'Java' },
+    { name: 'Minecraft Commands', url: 'https://www.reddit.com/r/MinecraftCommands/new/.rss?limit=15', tag: 'Java' },
+    { name: 'Minecraft Suggestions', url: 'https://www.reddit.com/r/minecraftsuggestions/new/.rss?limit=15', tag: 'Java' },
+    { name: 'Minecraft Help', url: 'https://www.reddit.com/r/MinecraftHelp/new/.rss?limit=15', tag: 'Java' },
+  ],
+  bedrock: [
+    { name: 'Minecraft Bedrock', url: 'https://www.reddit.com/r/MCPE/new/.rss?limit=45', tag: 'Bedrock' },
+  ],
+  servers: [
+    { name: 'Server Admins', url: 'https://www.reddit.com/r/admincraft/new/.rss?limit=40', tag: 'Servers' },
+    { name: 'Aternos Community', url: 'https://www.reddit.com/r/aternos/new/.rss?limit=20', tag: 'Servers' },
+  ],
+  mods: [
+    { name: 'Modded Minecraft', url: 'https://www.reddit.com/r/feedthebeast/new/.rss?limit=35', tag: 'Mods' },
+    { name: 'Fabric Modding', url: 'https://www.reddit.com/r/fabricmc/new/.rss?limit=20', tag: 'Mods' },
+    { name: 'Create Mod', url: 'https://www.reddit.com/r/CreateMod/new/.rss?limit=15', tag: 'Mods' },
+    { name: 'All The Mods', url: 'https://www.reddit.com/r/allthemods/new/.rss?limit=15', tag: 'Mods' },
+  ],
+};
+
+function stripCdata(s) {
+  if (!s) return '';
+  const m = s.match(/<!\[CDATA\[([\s\S]*?)\]\]>/);
+  return (m ? m[1] : s).trim();
+}
+
+function getTag(block, tag) {
+  const re = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
+  const m = block.match(re);
+  return m ? m[1] : '';
+}
+
+function getInnerText(block, tag) {
+  const inner = getTag(block, tag);
+  if (!inner) return '';
+  // Atom <author> wraps the actual name in a nested <name> tag — pull that
+  // out instead of returning the whole "<name>x</name><uri>y</uri>" blob.
+  const nameMatch = inner.match(/<name[^>]*>([\s\S]*?)<\/name>/i);
+  return nameMatch ? nameMatch[1] : inner;
+}
+
+/* Minimal, dependency-free RSS/Atom parser — Cloudflare's Worker runtime
+   has no DOMParser, so this pulls out just the fields we need with regex
+   rather than pulling in a full XML parsing library for it. */
+function parseFeed(xml) {
+  const items = [];
+  const blockRe = /<(item|entry)\b[^>]*>([\s\S]*?)<\/\1>/g;
+  let m;
+  while ((m = blockRe.exec(xml))) {
+    const block = m[2];
+    let link = getTag(block, 'link');
+    if (!link) {
+      const linkAttr = block.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>/i);
+      link = linkAttr ? linkAttr[1] : '';
+    }
+    const author = stripCdata(getInnerText(block, 'author')).replace(/^\/u\//, '');
+    items.push({
+      title: stripCdata(getTag(block, 'title')),
+      link,
+      pubDate: getTag(block, 'published') || getTag(block, 'pubDate'),
+      author,
+      description: stripCdata(getTag(block, 'content') || getTag(block, 'description')),
+      thumbnail: null,
+    });
+  }
+  return items;
+}
+
+export async function onRequestGet({ request }) {
+  const url = new URL(request.url);
+  const cat = url.searchParams.get('cat') || 'all';
+  const feeds = FEEDS[cat] || FEEDS.all;
+
+  const results = await Promise.all(feeds.map(async (f) => {
+    try {
+      const r = await fetch(f.url, {
+        headers: {
+          // Reddit's own API docs explicitly ask for a descriptive UA —
+          // generic/absent ones are far more likely to get throttled.
+          'User-Agent': 'HollowHub/1.0 (Minecraft content hub; +https://hollowhub.pages.dev)',
+          'Accept': 'application/rss+xml, application/atom+xml, text/xml, */*',
+        },
+        cf: { cacheTtl: 90, cacheEverything: true },
+      });
+      if (!r.ok) return { feed: f, items: [] };
+      const text = await r.text();
+      return { feed: f, items: parseFeed(text) };
+    } catch (e) {
+      return { feed: f, items: [] };
+    }
+  }));
+
+  let items = [];
+  let failures = 0;
+  results.forEach(r => {
+    if (!r.items.length) failures++;
+    r.items.forEach(it => items.push({ ...it, sourceTag: r.feed.tag, sourceName: r.feed.name }));
+  });
+  items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  return new Response(JSON.stringify({ items, failures, totalFeeds: feeds.length }), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=20',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}
